@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mi Saldo">
+<title>Mi Saldo</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #222;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0f0f0;
+    --text2: #888;
+    --text3: #444;
+    --green: #3ddc84;
+    --green-bg: rgba(61,220,132,0.1);
+    --red: #ff5f57;
+    --red-bg: rgba(255,95,87,0.1);
+    --yellow: #f5c842;
+    --blue: #4ea8f7;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: env(safe-area-inset-bottom, 24px); }
+  .app { max-width: 420px; margin: 0 auto; padding: 0 16px 100px; }
+
+  .header { padding: 28px 0 4px; display: flex; justify-content: space-between; align-items: center; }
+  .header-title { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text3); letter-spacing: 0.12em; text-transform: uppercase; }
+  .header-mes { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text3); }
+
+  .hero { padding: 20px 0 24px; }
+  .hero-label { font-size: 11px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; font-family: 'DM Mono', monospace; margin-bottom: 6px; }
+  .hero-num { font-size: 56px; font-weight: 600; letter-spacing: -2.5px; line-height: 1; transition: color 0.3s; font-variant-numeric: tabular-nums; }
+  .hero-sub { font-size: 12px; color: var(--text3); margin-top: 10px; font-family: 'DM Mono', monospace; line-height: 1.8; white-space: pre-line; }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 24px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; }
+  .stat-lbl { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; font-family: 'DM Mono', monospace; margin-bottom: 5px; }
+  .stat-val { font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; }
+
+  .bar-wrap { margin-bottom: 24px; }
+  .bar-head { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; margin-bottom: 6px; }
+  .bar-track { height: 3px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 99px; transition: width 0.5s cubic-bezier(.4,0,.2,1), background 0.3s; }
+
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+  .section-title { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; font-family: 'DM Mono', monospace; margin-bottom: 14px; }
+  .inp { background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--text); font-family: 'DM Mono', monospace; font-size: 14px; padding: 10px 14px; outline: none; transition: border-color 0.15s; width: 100%; }
+  .inp:focus { border-color: var(--blue); }
+  .inp-sm { width: 150px; text-align: right; }
+  input[type=number] { -moz-appearance: textfield; }
+  input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { display: none; }
+
+  .cupo-row { display: flex; align-items: center; gap: 10px; }
+  .cupo-label { font-size: 13px; color: var(--text2); flex: 1; }
+
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+  .tab { padding: 9px; border-radius: var(--radius-sm); border: 1px solid var(--border2); background: none; color: var(--text2); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .tab.t-on { background: var(--red-bg); color: var(--red); border-color: var(--red); }
+  .tab.a-on { background: var(--green-bg); color: var(--green); border-color: var(--green); }
+  .form-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  .btn { width: 100%; padding: 13px; border-radius: var(--radius-sm); border: none; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .btn:active { transform: scale(0.98); }
+  .btn-t { background: var(--red); color: #fff; }
+  .btn-a { background: var(--green); color: #0f0f0f; }
+
+  .cfg-toggle { text-align: center; font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; padding: 6px; cursor: pointer; margin-bottom: 4px; }
+  .cfg-toggle:hover { color: var(--text2); }
+  .hidden { display: none; }
+  .cfg-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .cfg-row:last-child { border-bottom: none; }
+  .cfg-key { font-size: 13px; color: var(--text2); }
+
+  .movs-title { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; font-family: 'DM Mono', monospace; margin: 20px 0 10px; }
+  .mov-list { display: flex; flex-direction: column; gap: 6px; }
+  .mov { display: flex; justify-content: space-between; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; animation: fi 0.2s ease; }
+  @keyframes fi { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+  .mov-l { display: flex; align-items: center; gap: 9px; min-width: 0; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .mov-desc { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px; }
+  .mov-r { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .mov-val { font-size: 13px; font-weight: 500; font-family: 'DM Mono', monospace; }
+  .del { background: none; border: none; color: var(--text3); font-size: 18px; cursor: pointer; padding: 0 2px; line-height: 1; transition: color 0.15s; }
+  .del:hover { color: var(--red); }
+  .empty { text-align: center; color: var(--text3); font-size: 13px; padding: 20px 0; font-family: 'DM Mono', monospace; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-title">Mi Saldo</div>
+    <div class="header-mes" id="h-mes"></div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-label">Disponible real</div>
+    <div class="hero-num" id="hero-num">$0</div>
+    <div class="hero-sub" id="hero-sub"></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-lbl">Gasto TC</div>
+      <div class="stat-val" id="s-tc" style="color:var(--red)">$0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-lbl">Transfer.</div>
+      <div class="stat-val" id="s-tr" style="color:var(--red)">$0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-lbl">Abonos</div>
+      <div class="stat-val" id="s-ab" style="color:var(--green)">$0</div>
+    </div>
+  </div>
+
+  <div class="bar-wrap">
+    <div class="bar-head"><span>Cupo TC usado</span><span id="b-pct">0%</span></div>
+    <div class="bar-track"><div class="bar-fill" id="bar" style="width:0%"></div></div>
+  </div>
+
+  <div class="cfg-toggle" onclick="toggleCfg()">⚙ sueldo y cupo total</div>
+  <div class="section hidden" id="cfg-box">
+    <div class="section-title">Configuración</div>
+    <div class="cfg-row">
+      <span class="cfg-key">Sueldo mensual</span>
+      <input class="inp inp-sm" type="number" id="sueldo" value="1100000" min="0" step="1000">
+    </div>
+    <div class="cfg-row">
+      <span class="cfg-key">Cupo total TC</span>
+      <input class="inp inp-sm" type="number" id="cupo-total" value="900000" min="0" step="1000">
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Cupo restante en tarjeta — lo ves en BCI</div>
+    <div class="cupo-row">
+      <span class="cupo-label">¿Cuánto cupo te queda?</span>
+      <input class="inp inp-sm" type="number" id="cupo-rest" placeholder="ej: 650.000" min="0" step="1000">
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Transferencias y abonos manuales</div>
+    <div class="tabs">
+      <button class="tab t-on" id="tab-t" onclick="setModo('t')">− Transferencia</button>
+      <button class="tab" id="tab-a" onclick="setModo('a')">+ Abono recibido</button>
+    </div>
+    <div class="form-row">
+      <input class="inp" type="number" id="monto" placeholder="Monto" min="0" step="100">
+      <input class="inp" type="text" id="desc" placeholder="Descripción" style="flex:2">
+    </div>
+    <button class="btn btn-t" id="btn-reg" onclick="agregar()">Registrar transferencia</button>
+  </div>
+
+  <div class="movs-title">Transferencias y abonos</div>
+  <div class="mov-list" id="mov-list">
+    <div class="empty">Sin movimientos aún</div>
+  </div>
+
+</div>
+<script>
+  let movs = [];
+  try { movs = JSON.parse(localStorage.getItem('ms2_movs') || '[]'); } catch(e) {}
+
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const hoy = new Date();
+  document.getElementById('h-mes').textContent = meses[hoy.getMonth()] + ' ' + hoy.getFullYear();
+
+  const saved = k => localStorage.getItem(k);
+  if (saved('ms2_sueldo')) document.getElementById('sueldo').value = saved('ms2_sueldo');
+  if (saved('ms2_cupo_total')) document.getElementById('cupo-total').value = saved('ms2_cupo_total');
+  if (saved('ms2_cupo_rest')) document.getElementById('cupo-rest').value = saved('ms2_cupo_rest');
+
+  let modo = 't';
+
+  function fmt(n) { return '$' + Math.round(Math.abs(n)).toLocaleString('es-CL'); }
+  function sueldo() { return parseInt(document.getElementById('sueldo').value) || 0; }
+  function cupoTotal() { return parseInt(document.getElementById('cupo-total').value) || 0; }
+  function cupoRest() { return parseInt(document.getElementById('cupo-rest').value) || 0; }
+  function gastoTC() { const cr = document.getElementById('cupo-rest').value; return cr === '' ? 0 : Math.max(0, cupoTotal() - cupoRest()); }
+  function totalTr() { return movs.filter(m => m.t === 't').reduce((s,m) => s+m.v, 0); }
+  function totalAb() { return movs.filter(m => m.t === 'a').reduce((s,m) => s+m.v, 0); }
+
+  function setModo(m) {
+    modo = m;
+    document.getElementById('tab-t').className = 'tab' + (m === 't' ? ' t-on' : '');
+    document.getElementById('tab-a').className = 'tab' + (m === 'a' ? ' a-on' : '');
+    const btn = document.getElementById('btn-reg');
+    btn.className = 'btn ' + (m === 't' ? 'btn-t' : 'btn-a');
+    btn.textContent = m === 't' ? 'Registrar transferencia' : 'Registrar abono';
+    document.getElementById('monto').focus();
+  }
+
+  function toggleCfg() { document.getElementById('cfg-box').classList.toggle('hidden'); }
+
+  function update() {
+    const s = sueldo(), gtc = gastoTC(), tr = totalTr(), ab = totalAb();
+    const saldo = s - gtc - tr + ab;
+    const ct = cupoTotal();
+    const pct = ct > 0 ? Math.min(100, Math.round((gtc / ct) * 100)) : 0;
+
+    const el = document.getElementById('hero-num');
+    el.textContent = fmt(saldo);
+    el.style.color = saldo < 0 ? 'var(--red)' : saldo < s * 0.2 ? 'var(--yellow)' : 'var(--green)';
+
+    const lines = [];
+    if (gtc > 0) lines.push('TC: ' + fmt(gtc) + ' gastado');
+    if (tr > 0) lines.push('Transferencias: −' + fmt(tr));
+    if (ab > 0) lines.push('Abonos: +' + fmt(ab));
+    document.getElementById('hero-sub').textContent = lines.join('\n') || '—';
+
+    document.getElementById('s-tc').textContent = fmt(gtc);
+    document.getElementById('s-tr').textContent = fmt(tr);
+    document.getElementById('s-ab').textContent = fmt(ab);
+    document.getElementById('b-pct').textContent = pct + '%';
+
+    const bar = document.getElementById('bar');
+    bar.style.width = pct + '%';
+    bar.style.background = pct > 80 ? 'var(--red)' : pct > 55 ? 'var(--yellow)' : 'var(--green)';
+
+    renderList();
+    try {
+      localStorage.setItem('ms2_movs', JSON.stringify(movs));
+      localStorage.setItem('ms2_sueldo', sueldo());
+      localStorage.setItem('ms2_cupo_total', cupoTotal());
+      if (document.getElementById('cupo-rest').value !== '') localStorage.setItem('ms2_cupo_rest', cupoRest());
+    } catch(e) {}
+  }
+
+  function renderList() {
+    const list = document.getElementById('mov-list');
+    if (movs.length === 0) { list.innerHTML = '<div class="empty">Sin movimientos aún</div>'; return; }
+    list.innerHTML = '';
+    [...movs].reverse().forEach((m, ri) => {
+      const i = movs.length - 1 - ri;
+      const isT = m.t === 't';
+      const div = document.createElement('div');
+      div.className = 'mov';
+      div.innerHTML = `<div class="mov-l"><div class="dot" style="background:${isT?'var(--red)':'var(--green)'}"></div><span class="mov-desc">${m.d||'Sin descripción'}</span></div><div class="mov-r"><span class="mov-val" style="color:${isT?'var(--red)':'var(--green)'}">${isT?'-':'+'}${fmt(m.v)}</span><button class="del" onclick="eliminar(${i})">×</button></div>`;
+      list.appendChild(div);
+    });
+  }
+
+  function agregar() {
+    const v = parseInt(document.getElementById('monto').value);
+    const d = document.getElementById('desc').value.trim();
+    if (!v || v <= 0) { document.getElementById('monto').focus(); return; }
+    movs.push({ t: modo, v, d });
+    document.getElementById('monto').value = '';
+    document.getElementById('desc').value = '';
+    document.getElementById('monto').focus();
+    update();
+  }
+
+  function eliminar(i) { movs.splice(i, 1); update(); }
+
+  document.getElementById('monto').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('desc').focus(); });
+  document.getElementById('desc').addEventListener('keydown', e => { if (e.key==='Enter') agregar(); });
+  ['sueldo','cupo-total','cupo-rest'].forEach(id => document.getElementById(id).addEventListener('input', update));
+
+  update();
+</script>
+</body>
+</html>
